@@ -5,13 +5,20 @@ front-end:
   user: 统一身份认证账号
   password: 统一身份认证密码
   qq: QQ
+  eduroam:
+    return-register: 返回原注册页面
+  register:
+    goto-eduroam: 使用Eduroam注册
+filter:
+  need_verified: 请先验证当前邮箱。
 config:
   config: Eduroam配置
+  replace: 禁用原版注册
+  replace-label: 开启后将完全使用Eduroam注册
   eduroam_domain: Eduroam域名
   eduroam_domain-hint: 若为空则直接使用输入的统一身份认证账号
 auth:
   user_repeated: 统一身份认证账号已被使用。
-  qq_repeated: QQ号已被使用。
   failure: 统一身份认证账号或密码错误，请重新输入。
   illegal: 统一身份认证账号或密码含非法字符。
   unknown: 未知错误，请稍后重试或联系管理员。

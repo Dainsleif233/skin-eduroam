@@ -48,19 +48,15 @@
                 </div>
               </div>
             </div>
-            <div class="input-group mb-3">
-              <input type="text" class="form-control" placeholder="{{ trans('front-end.auth.player-name') }}" name="player_name" required>
-              <div class="input-group-append">
-                <div class="input-group-text">
-                  <span class="fas fa-gamepad"></span>
-                </div>
-              </div>
-            </div>
+            {{ include(register_with) }}
             <div class="d-flex justify-content-between align-items-center mb-3">
               <a href="/auth/login">{{ trans('front-end.auth.login-link') }}</a>
               <button id="loginButton" class="btn btn-primary" type="submit">{{ trans('front-end.auth.register') }}</button>
             </div>
           </form>
+          {% if return_register is not null %}
+              {{ include(return_register) }}
+          {% endif %}
           <script>
             document.addEventListener("DOMContentLoaded", function() {
               var loginForm = document.querySelector('form');
@@ -80,3 +76,7 @@
     {{ include('shared.foot') }}
   </body>
 </html>
+
+
+
+

@@ -17,36 +17,44 @@ use Vectorface\Whip\Whip;
 
 class AuthController extends Controller {
     public function eduroam(Filter $filter) {
+        $register_with = option('register_with_player_name', null) ? 'Blessing\Eduroam::rows.player_name' : 'Blessing\Eduroam::rows.nickname';
+        $return_register = option('replace', null) ? null : 'Blessing\Eduroam::rows.return-register';
         $value = [
-            'site_name' => option_localized('site_name')
+            'site_name' => option_localized('site_name'),
+            'register_with' => $register_with,
+            'return_register' => $return_register
         ];
         return view('Blessing\Eduroam::eduroam', $value);
     }
     public function handleEduroam(Request $request, Dispatcher $dispatcher, Filter $filter) {
         $can = $filter->apply('can_register', null);
         if ($can instanceof Rejection) return back()->withErrors(['login' => $can->getReason()]);
+        $rule = option('register_with_player_name') ?
+            ['player_name' => [
+                'required',
+                new Rules\PlayerName(),
+                'min:'.option('player_name_length_min'),
+                'max:'.option('player_name_length_max')
+            ]] :
+            ['nickname' => 'required|max:255'];
         $data = $request->validate(array_merge([
             'user' => 'required',
             'password' => 'required',
-            'qq' => 'required|Numeric'
-        ], ['player_name' => [
-            'required',
-            new Rules\PlayerName(),
-            'min:'.option('player_name_length_min'),
-            'max:'.option('player_name_length_max')
-        ]]));
+            'qq' => 'required|Numeric|unique:users'
+        ], $rule));
         $playerName = $request->input('player_name');
         $dispatcher->dispatch('auth.registration.attempt', [$data]);
-        if (Player::where('name', $playerName)->count() > 0) return back()->withErrors(['login' => trans('user.player.add.repeated')]);
+        if (
+            option('register_with_player_name') &&
+            Player::where('name', $playerName)->count() > 0
+        ) return back()->withErrors(['login' => trans('user.player.add.repeated')]);
         $whip = new Whip();
         $ip = $whip->getValidIpAddress();
         $ip = $filter->apply('client_ip', $ip);
         if (User::where('ip', $ip)->count() >= option('regs_per_ip')) return back()->withErrors(['login' => trans('auth.register.max', ['regs' => option('regs_per_ip')])]);
         $username = $data['user'];
         $eduroam = option('eduroam_domain', null) ? $username . '@' . option('eduroam_domain') : $username;
-        $email = $data['qq'] . '@qq.com';
         if (User::where('eduroam', $eduroam)->first()) return back()->withErrors(['login' => trans('Blessing\\Eduroam::eduroam.auth.user_repeated')]);
-        if (User::where('email', $email)->first()) return back()->withErrors(['login' => trans('Blessing\\Eduroam::eduroam.auth.qq_repeated')]);
         $response = Http::asForm()->post('https://eduroam.ustc.edu.cn/cgi-bin/eduroam-test.cgi', [
             'login' => $eduroam,
             'password' => $data['password']
@@ -56,8 +64,8 @@ class AuthController extends Controller {
         elseif (strpos($response->body(), 'EAP Success')) {
             $dispatcher->dispatch('auth.registration.ready', [$data]);
             $user = new User();
-            $user->email = $email;
-            $user->nickname = $data['player_name'];
+            $user->email = $data['qq'] . '@qq.com';
+            $user->nickname = $data[option('register_with_player_name') ? 'player_name' : 'nickname'];
             $user->score = option('user_initial_score');
             $user->avatar = 0;
             $password = app('cipher')->hash($data['password'], config('secure.salt'));
@@ -67,17 +75,20 @@ class AuthController extends Controller {
             $user->register_at = Carbon::now();
             $user->last_sign_at = Carbon::now()->subDay();
             $user->eduroam = $eduroam;
+            $user->qq = $data['qq'];
             $user->save();
             $dispatcher->dispatch('auth.registration.completed', [$user]);
             event(new Events\UserRegistered($user));
-            $dispatcher->dispatch('player.adding', [$playerName, $user]);
-            $player = new Player();
-            $player->uid = $user->uid;
-            $player->name = $playerName;
-            $player->tid_skin = 0;
-            $player->save();
-            $dispatcher->dispatch('player.added', [$player, $user]);
-            event(new Events\PlayerWasAdded($player));
+            if (option('register_with_player_name')) {
+                $dispatcher->dispatch('player.adding', [$playerName, $user]);
+                $player = new Player();
+                $player->uid = $user->uid;
+                $player->name = $playerName;
+                $player->tid_skin = 0;
+                $player->save();
+                $dispatcher->dispatch('player.added', [$player, $user]);
+                event(new Events\PlayerWasAdded($player));
+            }
             $dispatcher->dispatch('auth.login.ready', [$user]);
             auth()->login($user);
             $dispatcher->dispatch('auth.login.succeeded', [$user]);
