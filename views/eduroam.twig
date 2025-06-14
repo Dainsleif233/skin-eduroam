@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="{{ locale }}">
+  <head>
+    {{ include('shared.head') }}
+    <title>{{ trans('auth.register.title') }} - {{ site_name }}</title>
+  </head>
+  <body class="hold-transition login-page">
+    <div class="login-box">
+      <div class="login-logo">
+        <a href="{{ url('/') }}">{{ site_name }}</a>
+      </div>
+      <div class="card">
+        <div class="card-body login-card-body">
+          <p class="login-box-msg">
+            {{ trans('auth.register.message', {sitename: site_name}) }}
+          </p>
+          {% if errors.any() %}
+            <p style="color: red; font-size: 14px; text-align: center;">
+              {% for error in errors.all() %}
+                {{ error }}
+              {% endfor %}
+            </p>
+          {% endif %}
+          <form method="post">
+            {{ csrf_field() }}
+            <div class="input-group mb-3">
+              <input type="text" class="form-control" placeholder="{{ trans('Blessing\\Eduroam::eduroam.front-end.user') }}" name="user" required>
+              <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-user-graduate"></span>
+                </div>
+              </div>
+            </div>
+            <div class="input-group mb-3">
+              <input type="password" class="form-control" placeholder="{{ trans('Blessing\\Eduroam::eduroam.front-end.password') }}" name="password" required>
+              <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-lock"></span>
+                </div>
+              </div>
+            </div>
+            <div class="input-group mb-3">
+              <input type="text" class="form-control" placeholder="{{ trans('Blessing\\Eduroam::eduroam.front-end.qq') }}" name="qq" pattern="\d+" required>
+              <div class="input-group-append">
+                <div class="input-group-text">
+		              <b>@qq.com</b>
+                  <span class="fas fa-envelope"></span>
+                </div>
+              </div>
+            </div>
+            <div class="input-group mb-3">
+              <input type="text" class="form-control" placeholder="{{ trans('front-end.auth.player-name') }}" name="player_name" required>
+              <div class="input-group-append">
+                <div class="input-group-text">
+                  <span class="fas fa-gamepad"></span>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <a href="/auth/login">{{ trans('front-end.auth.login-link') }}</a>
+              <button id="loginButton" class="btn btn-primary" type="submit">{{ trans('front-end.auth.register') }}</button>
+            </div>
+          </form>
+          <script>
+            document.addEventListener("DOMContentLoaded", function() {
+              var loginForm = document.querySelector('form');
+              loginForm.addEventListener('submit', function() {
+                var loginButton = document.getElementById('loginButton');
+                loginButton.disabled = true;
+                loginButton.innerText = '{{ trans('front-end.auth.registering') }}';
+              });
+            });
+          </script>
+        </div>
+      </div>
+    </div>
+    <script id="blessing-extra" type="application/json">
+      {{ extra|json_encode|raw }}
+    </script>
+    {{ include('shared.foot') }}
+  </body>
+</html>

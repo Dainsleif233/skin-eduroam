@@ -1,0 +1,17 @@
+general:
+  title: Eduroam
+  description: Add Eduroam Registration
+front-end:
+  user: Eduroam Account
+  password: Eduroam Password
+  qq: QQ
+config:
+  config: Eduroam Configuration
+  eduroam_domain: Eduroam Domain
+  eduroam_domain-hint: If Empty, Directly Use the Entered Eduroam Account
+auth:
+  user_repeated: Eduroam Account Has Been Used.
+  qq_repeated: QQ Account Has Been Used.
+  failure: Incorrect Eduroam Account or Password, Please Re-enter.
+  illegal: Eduroam Account or Password Contains Illegal Characters.
+  unknown: Unknown Error, Please Try Again Later or Contact the Administrator.

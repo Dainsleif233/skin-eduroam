@@ -1,0 +1,19 @@
+{
+  "name": "eduroam",
+  "version": "1.2.1",
+  "title": "Blessing\\Eduroam::eduroam.general.title",
+  "description": "Blessing\\Eduroam::eduroam.general.description",
+  "namespace": "Blessing\\Eduroam",
+  "author": "Dainsleif",
+  "require": {
+    "blessing-skin-server": "^5|^6",
+    "restricted-email-domains": "^0.3.0"
+  },
+  "enchants": {
+    "config": "ConfigController",
+    "icon": {
+      "bg": "purple",
+      "fa": "user-graduate"
+    }
+  }
+}
