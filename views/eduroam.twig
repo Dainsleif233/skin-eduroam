@@ -14,13 +14,6 @@
           <p class="login-box-msg">
             {{ trans('auth.register.message', {sitename: site_name}) }}
           </p>
-          {% if errors.any() %}
-            <p style="color: red; font-size: 14px; text-align: center;">
-              {% for error in errors.all() %}
-                {{ error }}
-              {% endfor %}
-            </p>
-          {% endif %}
           <form method="post">
             {{ csrf_field() }}
             <div class="input-group mb-3">
@@ -49,6 +42,12 @@
               </div>
             </div>
             {{ include(register_with) }}
+            <div class="d-flex" id="captcha"></div>
+            <div class="alert alert-warning" style="display:none;" id="warning">
+              <i class="icon fas fa-exclamation-triangle"></i>
+              <span id="warning-text">
+              </span>
+            </div>
             <div class="d-flex justify-content-between align-items-center mb-3">
               <a href="/auth/login">{{ trans('front-end.auth.login-link') }}</a>
               <button id="loginButton" class="btn btn-primary" type="submit">{{ trans('front-end.auth.register') }}</button>
@@ -57,16 +56,6 @@
           {% if return_register is not null %}
               {{ include(return_register) }}
           {% endif %}
-          <script>
-            document.addEventListener("DOMContentLoaded", function() {
-              var loginForm = document.querySelector('form');
-              loginForm.addEventListener('submit', function() {
-                var loginButton = document.getElementById('loginButton');
-                loginButton.disabled = true;
-                loginButton.innerText = '{{ trans('front-end.auth.registering') }}';
-              });
-            });
-          </script>
         </div>
       </div>
     </div>

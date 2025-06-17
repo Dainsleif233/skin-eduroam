@@ -17,6 +17,8 @@ config:
   replace-label: 开启后将完全使用Eduroam注册
   eduroam_domain: Eduroam域名
   eduroam_domain-hint: 若为空则直接使用输入的统一身份认证账号
+  prevent_edit_email: 阻止未验证用户修改邮箱
+  prevent_edit_email-label: 开启邮箱验证后生效
 auth:
   user_repeated: 统一身份认证账号已被使用。
   failure: 统一身份认证账号或密码错误，请重新输入。

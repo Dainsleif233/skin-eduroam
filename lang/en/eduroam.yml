@@ -17,6 +17,8 @@ config:
   replace-label: When Enabled, It Will Completely Use Eduroam Registration
   eduroam_domain: Eduroam Domain
   eduroam_domain-hint: If Empty, Directly Use the Entered Eduroam Account
+  prevent_edit_email: Prevent unverified users from modifying email
+  prevent_edit_email-label: Takes effect only when email verification is enabled
 auth:
   user_repeated: Eduroam Account Has Been Used.
   failure: Incorrect Eduroam Account or Password, Please Re-enter.
