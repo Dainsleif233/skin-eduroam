@@ -1,6 +1,8 @@
 var loginForm = document.querySelector('form'); 
 var captchaDiv = document.getElementById('captcha')
 async function submit(formData, captcha) {
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+    const csrfToken = csrfMeta ? csrfMeta.content : '';
     const response = await blessing.fetch.post('/auth/register/eduroam', {
         user: formData.get('user'),
         password: formData.get('password'),
@@ -8,7 +10,7 @@ async function submit(formData, captcha) {
         player_name: formData.get('player_name') || undefined,
         nickname: formData.get('nickname') || undefined,
         captcha: formData.get('captcha')
-    })
+    }, { headers: {'X-CSRF-TOKEN': csrfToken} })
     if(response.code === 0) window.location.href = response.data.redirectTo;
     else {
         var warningDiv = document.getElementById('warning');

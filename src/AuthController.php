@@ -40,7 +40,7 @@ class AuthController extends Controller {
             ]] :
             ['nickname' => 'required|max:255'];
         $data = $request->validate(array_merge([
-            'user' => 'required',
+            'user' => 'required|regex:/^[a-z0-9]+$/i',
             'password' => 'required',
             'qq' => 'required|Numeric',
             'captcha' => ['required', $captcha]
@@ -58,10 +58,15 @@ class AuthController extends Controller {
         $username = $data['user'];
         $eduroam_user = option('eduroam_domain', null) ? $username . '@' . option('eduroam_domain') : $username;
         if (User::where('eduroam', $eduroam_user)->first()) return json(trans('Blessing\\Eduroam::eduroam.auth.user_repeated'), 1);
-        $response = Http::asForm()->post('https://eduroam.ustc.edu.cn/cgi-bin/eduroam-test.cgi', [
-            'login' => $eduroam_user,
-            'password' => $data['password']
-        ]);
+        try {
+            $response = Http::asForm()->post(option('eduroam_api', 'https://eduroam.ustc.edu.cn/cgi-bin/eduroam-test.cgi'), [
+                'login' => $eduroam_user,
+                'password' => $data['password']
+            ]);
+        } catch (Exception $e) {
+            Log::error('Eduroam API failed: '.$e->getMessage());
+            return json(trans('Blessing\\Eduroam::eduroam.auth.api_failure'), 1);
+        }
         if (strpos($response->body(), 'EAP Failure')) return json(trans('Blessing\\Eduroam::eduroam.auth.failure'), 1);
         elseif (strpos($response->body(), 'illegal')) return json(trans('Blessing\\Eduroam::eduroam.auth.illegal'), 1);
         elseif (strpos($response->body(), 'EAP Success')) {
