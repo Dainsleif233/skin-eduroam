@@ -15,6 +15,7 @@ config:
   config: Eduroam Configuration
   replace: Disable Original Registration
   replace-label: When Enabled, It Will Completely Use Eduroam Registration
+  username_regex: Username Regex Pattern
   eduroam_domain: Eduroam Domain
   eduroam_domain-hint: If Empty, Directly Use the Entered Eduroam Account
   eduroam_api: Eduroam API

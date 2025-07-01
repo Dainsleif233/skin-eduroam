@@ -15,6 +15,7 @@ config:
   config: Eduroam配置
   replace: 禁用原版注册
   replace-label: 开启后将完全使用Eduroam注册
+  username_regex: 用户名正则表达式限制
   eduroam_domain: Eduroam域名
   eduroam_domain-hint: 若为空则直接使用输入的统一身份认证账号
   eduroam_api: Eduroam API

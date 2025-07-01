@@ -40,9 +40,9 @@ class AuthController extends Controller {
             ]] :
             ['nickname' => 'required|max:255'];
         $data = $request->validate(array_merge([
-            'user' => 'required|regex:/^[a-z0-9]+$/i',
-            'password' => 'required',
-            'qq' => 'required|Numeric',
+            'user' => ['required', 'regex:'.option('username_regex', '//')],
+            'password' => ['required'],
+            'qq' => ['required', 'Numeric'],
             'captcha' => ['required', $captcha]
         ], $rule));
         $playerName = $request->input('player_name');
