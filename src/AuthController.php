@@ -90,19 +90,19 @@ class AuthController extends Controller {
                 'code' => 3
             ];
         }
-        if (strpos($response->body(), 'EAP Failure'))
+        if (strpos($response->body(), 'EAP Failure') !== false)
             return [
                 'eduroam_user' => $login,
                 'message' => trans('Blessing\\Eduroam::eduroam.auth.failure'),
                 'code' => 1
             ];
-        elseif (strpos($response->body(), 'illegal'))
+        elseif (strpos($response->body(), 'illegal') !== false)
             return [
                 'eduroam_user' => $login,
                 'message' => trans('Blessing\\Eduroam::eduroam.auth.illegal'),
                 'code' => 2
             ];
-        elseif (strpos($response->body(), 'EAP Success'))
+        elseif (strpos($response->body(), 'EAP Success') !== false)
             return [
                 'eduroam_user' => $login,
                 'code' => 0
@@ -130,19 +130,19 @@ class AuthController extends Controller {
                 'code' => 3
             ];
         }
-        if (strpos($response->body(), 'EAP Failure'))
+        if (strpos($response->body(), 'EAP Failure') !== false)
             return [
                 'eduroam_user' => $login,
                 'message' => trans('Blessing\\Eduroam::eduroam.auth.failure'),
                 'code' => 1
             ];
-        elseif (strpos($response->body(), 'illegal'))
+        elseif (strpos($response->body(), 'illegal') !== false)
             return [
                 'eduroam_user' => $login,
                 'message' => trans('Blessing\\Eduroam::eduroam.auth.illegal'),
                 'code' => 2
             ];
-        elseif (strpos($response->body(), 'EAP Success'))
+        elseif (strpos($response->body(), 'EAP Success') !== false)
             return [
                 'eduroam_user' => $login,
                 'code' => 0
