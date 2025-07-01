@@ -19,6 +19,9 @@ config:
   eduroam_domain-hint: If Empty, Directly Use the Entered Eduroam Account
   eduroam_api: Eduroam API
   eduroam_api-description: If Empty, Defaults To the Service Provided By USTC
+  backup_eduroam_domain: Backup Eduroam Domain
+  backup_eduroam_api: Backup Eduroam API
+  backup_eduroam_api-description: Leave blank to disable backup verification
   prevent_edit_email: Prevent unverified users from modifying email
   prevent_edit_email-label: Takes effect only when email verification is enabled
 auth:

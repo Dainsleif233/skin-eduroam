@@ -19,6 +19,9 @@ config:
   eduroam_domain-hint: 若为空则直接使用输入的统一身份认证账号
   eduroam_api: Eduroam API
   eduroam_api-description: 留空默认使用中国科学技术大学提供的服务
+  backup_eduroam_domain: 备用Eduroam域名
+  backup_eduroam_api: 备用Eduroam API
+  backup_eduroam_api-description: 留空不开启备用验证
   prevent_edit_email: 阻止未验证用户修改邮箱
   prevent_edit_email-label: 开启邮箱验证后生效
 auth:
