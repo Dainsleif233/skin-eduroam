@@ -63,10 +63,10 @@ class AuthController extends Controller {
         elseif ($auth_result['code'] == 1 || !option('backup_eduroam_api'))
             return json($auth_result['message'], 1);
 
-        $auth_result = $this->auth_backup($username, $data['password']);
-        if ($auth_result['code'] == 0)
+        $backup_auth_result = $this->auth_backup($username, $data['password']);
+        if ($backup_auth_result['code'] == 0)
             return $this->register($dispatcher, $data, $ip, $auth_result['eduroam_user'], $playerName, $request, $filter);
-        return json($auth_result['message'], 1);
+        return json($backup_auth_result['message'], 1);
     }
 
     private function auth($username, $password) {
