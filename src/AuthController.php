@@ -18,7 +18,8 @@ use Vectorface\Whip\Whip;
 class AuthController extends Controller {
     public function eduroam() {
         $register_with = option('register_with_player_name', null) ? 'Blessing\Eduroam::rows.player_name' : 'Blessing\Eduroam::rows.nickname';
-        $return_register = option('replace', null) ? null : 'Blessing\Eduroam::rows.return-register';
+        // $return_register = option('replace', null) ? null : 'Blessing\Eduroam::rows.return-register';
+        $return_register = null;
         $value = [
             'site_name' => option_localized('site_name'),
             'register_with' => $register_with,

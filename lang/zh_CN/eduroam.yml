@@ -13,8 +13,8 @@ filter:
   need_verified: 请先验证当前邮箱。
 config:
   config: Eduroam配置
-  replace: 禁用原版注册
-  replace-label: 开启后将完全使用Eduroam注册
+  # replace: 禁用原版注册
+  # replace-label: 开启后将完全使用Eduroam注册
   username_regex: 用户名正则表达式限制
   eduroam_domain: Eduroam域名
   eduroam_domain-hint: 若为空则直接使用输入的统一身份认证账号
@@ -23,8 +23,8 @@ config:
   backup_eduroam_domain: 备用Eduroam域名
   backup_eduroam_api: 备用Eduroam API
   backup_eduroam_api-description: 留空不开启备用验证
-  prevent_edit_email: 阻止未验证用户修改邮箱
-  prevent_edit_email-label: 开启邮箱验证后生效
+  # prevent_edit_email: 阻止未验证用户修改邮箱
+  # prevent_edit_email-label: 开启邮箱验证后生效
 auth:
   qq_repeated: QQ号已被使用。
   user_repeated: 统一身份认证账号已被使用。

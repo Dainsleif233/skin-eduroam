@@ -20,7 +20,7 @@ function update() {
 }
 
 return function (Filter $filter, Request $request, Plugin $plugin, Dispatcher $events) {
-    if(option('prevent_edit_email', null)) $filter->add('user_can_edit_profile', Blessing\Eduroam\UserFilter::class);
+    // if(option('prevent_edit_email', null)) $filter->add('user_can_edit_profile', Blessing\Eduroam\UserFilter::class);
     $filter->add('auth_page_rows:register', function ($rows) {
         $rows[] = 'Blessing\Eduroam::rows.goto-eduroam';
         return $rows;
@@ -36,7 +36,8 @@ return function (Filter $filter, Request $request, Plugin $plugin, Dispatcher $e
         Route::namespace('Blessing\Eduroam')->middleware(['web','guest'])->prefix('auth/register')->group(function () {
             Route::get('eduroam', 'AuthController@eduroam');
             Route::post('eduroam', 'AuthController@handleEduroam');
-            if(option('replace', null)) Route::redirect('', 'register/eduroam');
+            // if(option('replace', null)) Route::redirect('', 'register/eduroam');
+            Route::redirect('', 'register/eduroam');
         });
     });
 };

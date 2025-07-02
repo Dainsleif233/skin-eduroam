@@ -13,8 +13,8 @@ filter:
   need_verified: Please verify your current email address first.
 config:
   config: Eduroam Configuration
-  replace: Disable Original Registration
-  replace-label: When Enabled, It Will Completely Use Eduroam Registration
+  # replace: Disable Original Registration
+  # replace-label: When Enabled, It Will Completely Use Eduroam Registration
   username_regex: Username Regex Pattern
   eduroam_domain: Eduroam Domain
   eduroam_domain-hint: If Empty, Directly Use the Entered Eduroam Account
@@ -23,8 +23,8 @@ config:
   backup_eduroam_domain: Backup Eduroam Domain
   backup_eduroam_api: Backup Eduroam API
   backup_eduroam_api-description: Leave blank to disable backup verification
-  prevent_edit_email: Prevent unverified users from modifying email
-  prevent_edit_email-label: Takes effect only when email verification is enabled
+  # prevent_edit_email: Prevent unverified users from modifying email
+  # prevent_edit_email-label: Takes effect only when email verification is enabled
 auth:
   qq_repeated: This QQ number is already in use.
   user_repeated: Eduroam Account Has Been Used.

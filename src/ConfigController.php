@@ -14,8 +14,8 @@ class ConfigController extends Controller {
             $form->text('eduroam_api', trans('Blessing\\Eduroam::eduroam.config.eduroam_api'))->description(trans('Blessing\\Eduroam::eduroam.config.eduroam_api-description'));
             $form->text('backup_eduroam_domain', trans('Blessing\\Eduroam::eduroam.config.backup_eduroam_domain'))->hint(trans('Blessing\\Eduroam::eduroam.config.eduroam_domain-hint'));
             $form->text('backup_eduroam_api', trans('Blessing\\Eduroam::eduroam.config.backup_eduroam_api'))->description(trans('Blessing\\Eduroam::eduroam.config.backup_eduroam_api-description'));
-            $form->checkbox('replace', trans('Blessing\\Eduroam::eduroam.config.replace'))->label(trans('Blessing\\Eduroam::eduroam.config.replace-label'))->value(true)->disabled();
-            $form->checkbox('prevent_edit_email', trans('Blessing\\Eduroam::eduroam.config.prevent_edit_email'))->label(trans('Blessing\\Eduroam::eduroam.config.prevent_edit_email-label'))->value(false)->disabled();
+            // $form->checkbox('replace', trans('Blessing\\Eduroam::eduroam.config.replace'))->label(trans('Blessing\\Eduroam::eduroam.config.replace-label'))->value(true)->disabled();
+            // $form->checkbox('prevent_edit_email', trans('Blessing\\Eduroam::eduroam.config.prevent_edit_email'))->label(trans('Blessing\\Eduroam::eduroam.config.prevent_edit_email-label'))->value(false)->disabled();
         })->handle();
         return view('Blessing\Eduroam::config', ['config' => $configForm]);
     }
