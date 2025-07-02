@@ -56,6 +56,8 @@ class AuthController extends Controller {
         $ip = $filter->apply('client_ip', $ip);
         if (User::where('ip', $ip)->count() >= option('regs_per_ip')) return json(trans('auth.register.max', ['regs' => option('regs_per_ip')]), 1);
         $username = $data['user'];
+        if (User::where('email', $data['qq'] . '@qq.com')->first())
+            return json(trans('Blessing\\Eduroam::eduroam.auth.qq_repeated'), 1);
 
         $auth_result = $this->auth($username, $data['password']);
         if ($auth_result['code'] == 0)

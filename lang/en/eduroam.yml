@@ -26,6 +26,7 @@ config:
   prevent_edit_email: Prevent unverified users from modifying email
   prevent_edit_email-label: Takes effect only when email verification is enabled
 auth:
+  qq_repeated: This QQ number is already in use.
   user_repeated: Eduroam Account Has Been Used.
   failure: Incorrect Eduroam Account or Password, Please Re-enter.
   illegal: Eduroam Account or Password Contains Illegal Characters.
