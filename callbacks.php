@@ -10,7 +10,7 @@ return [
         });
         if (!Schema::hasTable('eduroam')) Schema::create('eduroam', function (Blueprint $table) {
             $table->string('eduroam', 255)->primary();
-            $table->string('name', 255)->nullable();
+            $table->string('name')->nullable();
             $table->string('qq')->nullable();
         });
     }

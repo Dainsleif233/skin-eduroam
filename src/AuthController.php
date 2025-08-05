@@ -18,12 +18,9 @@ use Vectorface\Whip\Whip;
 class AuthController extends Controller {
     public function eduroam() {
         $register_with = option('register_with_player_name', null) ? 'Blessing\Eduroam::rows.player_name' : 'Blessing\Eduroam::rows.nickname';
-        // $return_register = option('replace', null) ? null : 'Blessing\Eduroam::rows.return-register';
-        $return_register = null;
         $value = [
             'site_name' => option_localized('site_name'),
             'register_with' => $register_with,
-            'return_register' => $return_register,
             'recaptcha' => option('recaptcha_sitekey'),
             'invisible' => (bool) option('recaptcha_invisible'),
         ];
@@ -172,12 +169,13 @@ class AuthController extends Controller {
         $user->register_at = Carbon::now();
         $user->last_sign_at = Carbon::now()->subDay();
         $user->eduroam = $eduroam_user;
-        $user->save();
-        $eduroam = Eduroam::firstOrCreate(
+        Eduroam::firstOrCreate(
             ['eduroam' => $eduroam_user],
             ['name' => [], 'qq' => []]
         );
+        $eduroam = Eduroam::where('eduroam', $eduroam_user)->first();
         $eduroam->addQQ($data['qq'])->save();
+        $user->save();
         $dispatcher->dispatch('auth.registration.completed', [$user]);
         event(new Events\UserRegistered($user));
         if (option('register_with_player_name')) {
