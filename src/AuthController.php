@@ -70,7 +70,7 @@ class AuthController extends Controller {
     }
 
     private function auth($username, $password) {
-        $login = option('eduroam_domain', null) ? $username . '@' . option('eduroam_domain') : $username;
+        $login =  $username . option('eduroam_suffix', '');
         if (User::where('eduroam', $login)->first())
             return [
                 'eduroam_user' => $login,
@@ -116,7 +116,7 @@ class AuthController extends Controller {
     }
 
     private function auth_backup($username, $password) {
-        $login = option('backup_eduroam_domain', null) ? $username . '@' . option('backup_eduroam_domain') : $username;
+        $login = $username . option('backup_eduroam_suffix', '');
         try {
             $response = Http::asForm()->post(option('backup_eduroam_api'), [
                 'login' => $login,
