@@ -17,7 +17,7 @@ config:
   eduroam_suffix: Eduroam Suffix
   eduroam_suffix-hint: If Empty, Directly Use the Entered Eduroam Account
   eduroam_api: Eduroam API
-  eduroam_api-description: Please Use the API that Supports HTTPS to Ensure Data Security, If Empty, Defaults To the Service Provided By USTC
+  eduroam_api-description: Please Use the API that Supports HTTPS to Ensure Data Security, If Empty, Defaults To the Service Provided By XUST Seesea Team
   backup_eduroam_suffix: Backup Eduroam Suffix
   backup_eduroam_suffix-hint: The Master Suffix Will Be Used When Saving
   backup_eduroam_api: Backup Eduroam API

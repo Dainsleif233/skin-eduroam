@@ -7,14 +7,19 @@ use Blessing\Filter;
 use Illuminate\Http\Request;
 use Illuminate\Contracts\Events\Dispatcher;
 
+// 为 eduroam 用户记录 player 名和 QQ 的变更。
+// 本插件设计为全员走 eduroam 注册，非 eduroam 用户直接跳过。
 function update() {
     return function ($event) {
         if (empty($event->type)) {
-            $eduroam = Blessing\Eduroam\Eduroam::where('eduroam', User::where('uid', $event->player->uid)->first()->eduroam)->first();
+            $eduroam = Blessing\Eduroam\Eduroam::findByUserUid($event->player->uid);
+            if (!$eduroam) return;
             $eduroam->addName($event->player->name)->save();
-        } elseif ($event->type == 'email') {
-            $eduroam = Blessing\Eduroam\Eduroam::where('eduroam', User::where('uid', $event->user->uid)->first()->eduroam)->first();
-            $eduroam->addQQ(explode('@', $event->user->email)[0])->save();
+        } elseif ($event->type === 'email') {
+            $user = $event->user ?? User::where('uid', $event->player->uid)->first();
+            $eduroam = Blessing\Eduroam\Eduroam::findByUser($user);
+            if (!$eduroam) return;
+            $eduroam->addQQ(explode('@', $user->email)[0])->save();
         }
     };
 }

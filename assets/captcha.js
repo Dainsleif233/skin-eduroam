@@ -1,5 +1,6 @@
-var loginForm = document.querySelector('form'); 
+var loginForm = document.querySelector('form');
 var captchaDiv = document.getElementById('captcha')
+var loginButton;
 async function submit(formData, captcha) {
     const csrfMeta = document.querySelector('meta[name="csrf-token"]');
     const csrfToken = csrfMeta ? csrfMeta.content : '';
@@ -68,7 +69,7 @@ document.addEventListener("DOMContentLoaded", function() {
         event.preventDefault();
         var warningDiv = document.getElementById('warning');
         warningDiv.style.display = 'none';
-        var loginButton = document.getElementById('loginButton');
+        loginButton = document.getElementById('loginButton');
         loginButton.disabled = true;
         loginButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>' + blessing.t('auth.registering');
         if(blessing.recaptcha && blessing.invisible) grecaptcha.execute();

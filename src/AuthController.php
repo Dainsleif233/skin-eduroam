@@ -9,10 +9,12 @@ use App\Rules;
 use Blessing\Filter;
 use Blessing\Rejection;
 use Carbon\Carbon;
+use Exception;
 use Http;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\Log;
 use Vectorface\Whip\Whip;
 
 class AuthController extends Controller {
@@ -47,22 +49,24 @@ class AuthController extends Controller {
         $dispatcher->dispatch('auth.registration.attempt', [$data]);
         if (
             option('register_with_player_name') &&
-            Player::where('name', $playerName)->count() > 0
+            Player::where('name', $playerName)->exists()
         ) return json(trans('user.player.add.repeated'), 1);
         $whip = new Whip();
         $ip = $whip->getValidIpAddress();
         $ip = $filter->apply('client_ip', $ip);
         if (User::where('ip', $ip)->count() >= option('regs_per_ip')) return json(trans('auth.register.max', ['regs' => option('regs_per_ip')]), 1);
-        $username = $data['user'];
         if (User::where('email', $data['qq'] . '@qq.com')->first())
             return json(trans('Blessing\\Eduroam::eduroam.auth.qq_repeated'), 1);
 
+        // 验证用户名和密码
+        $username = $data['user'];
         $auth_result = $this->auth($username, $data['password']);
         if ($auth_result['code'] == 0)
             return $this->register($dispatcher, $data, $ip, $auth_result['eduroam_user'], $playerName, $request, $filter);
         elseif ($auth_result['code'] == 1 || !option('backup_eduroam_api'))
             return json($auth_result['message'], 1);
 
+        // 备份验证
         $backup_auth_result = $this->auth_backup($username, $data['password']);
         if ($backup_auth_result['code'] == 0)
             return $this->register($dispatcher, $data, $ip, $auth_result['eduroam_user'], $playerName, $request, $filter);
@@ -78,10 +82,11 @@ class AuthController extends Controller {
                 'code' => 1
             ];
         try {
-            $response = Http::asForm()->post(option('eduroam_api', 'https://eduroam.ustc.edu.cn/cgi-bin/eduroam-test.cgi'), [
+            $response = Http::acceptJson()->asJson()->post(option('eduroam_api', 'https://eduroam.seesea.site/api/auth/test'), [
                 'login' => $login,
                 'password' => $password
             ]);
+            $result = $response->json();
         } catch (Exception $e) {
             Log::error('Eduroam API failed: '.$e->getMessage());
             return [
@@ -90,38 +95,17 @@ class AuthController extends Controller {
                 'code' => 3
             ];
         }
-        if (strpos($response->body(), 'EAP Failure') !== false)
-            return [
-                'eduroam_user' => $login,
-                'message' => trans('Blessing\\Eduroam::eduroam.auth.failure'),
-                'code' => 1
-            ];
-        elseif (strpos($response->body(), 'illegal') !== false)
-            return [
-                'eduroam_user' => $login,
-                'message' => trans('Blessing\\Eduroam::eduroam.auth.illegal'),
-                'code' => 2
-            ];
-        elseif (strpos($response->body(), 'EAP Success') !== false)
-            return [
-                'eduroam_user' => $login,
-                'code' => 0
-            ];
-        else
-            return [
-                'eduroam_user' => $login,
-                'message' => trans('Blessing\\Eduroam::eduroam.auth.unknown'),
-                'code' => 3
-            ];
+        return $this->parseAuthResponse($result, $login);
     }
 
     private function auth_backup($username, $password) {
         $login = $username . option('backup_eduroam_suffix', '');
         try {
-            $response = Http::asForm()->post(option('backup_eduroam_api'), [
+            $response = Http::acceptJson()->asJson()->post(option('backup_eduroam_api'), [
                 'login' => $login,
                 'password' => $password
             ]);
+            $result = $response->json();
         } catch (Exception $e) {
             Log::error('Backup Eduroam API failed: '.$e->getMessage());
             return [
@@ -130,22 +114,34 @@ class AuthController extends Controller {
                 'code' => 3
             ];
         }
-        if (strpos($response->body(), 'EAP Failure') !== false)
+        return $this->parseAuthResponse($result, $login);
+    }
+
+    private function parseAuthResponse($result, $login) {
+        $results = $result['results'] ?? [];
+        // 有一个方法成功即认证成功
+        foreach ($results as $item) {
+            if (($item['success'] ?? false) === true)
+                return [
+                    'eduroam_user' => $login,
+                    'code' => 0
+                ];
+        }
+        // 全部失败，拼接 output 检测关键词判断错误类型
+        $output = '';
+        foreach ($results as $item)
+            $output .= ($item['output'] ?? '') . "\n";
+        if (strpos($output, 'EAP Failure') !== false)
             return [
                 'eduroam_user' => $login,
                 'message' => trans('Blessing\\Eduroam::eduroam.auth.failure'),
                 'code' => 1
             ];
-        elseif (strpos($response->body(), 'illegal') !== false)
+        elseif (strpos($output, 'illegal') !== false)
             return [
                 'eduroam_user' => $login,
                 'message' => trans('Blessing\\Eduroam::eduroam.auth.illegal'),
                 'code' => 2
-            ];
-        elseif (strpos($response->body(), 'EAP Success') !== false)
-            return [
-                'eduroam_user' => $login,
-                'code' => 0
             ];
         else
             return [
@@ -169,11 +165,10 @@ class AuthController extends Controller {
         $user->register_at = Carbon::now();
         $user->last_sign_at = Carbon::now()->subDay();
         $user->eduroam = $eduroam_user;
-        Eduroam::firstOrCreate(
+        $eduroam = Eduroam::firstOrCreate(
             ['eduroam' => $eduroam_user],
             ['name' => [], 'qq' => []]
         );
-        $eduroam = Eduroam::where('eduroam', $eduroam_user)->first();
         $eduroam->addQQ($data['qq'])->save();
         $user->save();
         $dispatcher->dispatch('auth.registration.completed', [$user]);

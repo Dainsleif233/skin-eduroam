@@ -17,7 +17,7 @@ config:
   eduroam_suffix: Eduroam后缀
   eduroam_suffix-hint: 若为空则直接使用输入的统一身份认证账号
   eduroam_api: Eduroam API
-  eduroam_api-description: 请务必使用支持HTTPS的API以确保数据安全，留空默认使用中国科学技术大学提供的服务
+  eduroam_api-description: 请务必使用支持HTTPS的API以确保数据安全，留空默认使用西安科技大学 Seesea 团队提供的服务
   backup_eduroam_suffix: 备用Eduroam后缀
   backup_eduroam_suffix-hint: 储存时将使用主认证后缀
   backup_eduroam_api: 备用Eduroam API
