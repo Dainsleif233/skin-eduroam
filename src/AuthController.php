@@ -23,8 +23,11 @@ class AuthController extends Controller {
         $value = [
             'site_name' => option_localized('site_name'),
             'register_with' => $register_with,
-            'recaptcha' => option('recaptcha_sitekey'),
-            'invisible' => (bool) option('recaptcha_invisible'),
+            // 与核心约定一致：经 #blessing-extra 传给前端，读作 blessing.extra.*
+            'extra' => [
+                'recaptcha' => option('recaptcha_sitekey'),
+                'invisible' => (bool) option('recaptcha_invisible'),
+            ],
         ];
         return view('Blessing\Eduroam::eduroam', $value);
     }
