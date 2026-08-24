@@ -14,12 +14,12 @@ function update() {
         if (empty($event->type)) {
             $eduroam = Blessing\Eduroam\Eduroam::findByUserUid($event->player->uid);
             if (!$eduroam) return;
-            $eduroam->addName($event->player->name)->save();
+            $eduroam->appendName($event->player->name);
         } elseif ($event->type === 'email') {
             $user = $event->user ?? User::where('uid', $event->player->uid)->first();
             $eduroam = Blessing\Eduroam\Eduroam::findByUser($user);
             if (!$eduroam) return;
-            $eduroam->addQQ(explode('@', $user->email)[0])->save();
+            $eduroam->appendQQ(explode('@', $user->email)[0]);
         }
     };
 }

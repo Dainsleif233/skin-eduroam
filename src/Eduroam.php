@@ -4,6 +4,7 @@ namespace Blessing\Eduroam;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 /**
  * @property String $eduroam
@@ -21,6 +22,7 @@ class Eduroam extends Model
         'qq' => 'array'
     ];
     public $timestamps = false;
+    public $incrementing = false;
 
     /**
      * Find an eduroam record by a user model, null if the user is not eduroam-based.
@@ -37,15 +39,41 @@ class Eduroam extends Model
         return static::findByUser(User::where('uid', $uid)->first());
     }
 
-    public function addName($name) {
-        $newNames = array_unique(array_merge($this->name, [$name]));
-        $this->name = $newNames;
+    /**
+     * Merge $value into a JSON array column, de-duplicated.
+     * Low-level helper used by the atomic append* methods.
+     * Guards against NULL (nullable columns / pre-1.4.0 rows) so that
+     * array_merge() never receives null on PHP 8.1+ (would be a TypeError).
+     */
+    protected function addValue(string $column, $value) {
+        $this->{$column} = array_unique(array_merge((array) ($this->{$column} ?? []), [$value]));
         return $this;
     }
 
-    public function addQQ($qq) {
-        $newQQs = array_unique(array_merge($this->qq, [$qq]));
-        $this->qq = $newQQs;
+    /**
+     * Atomically append a player name. The row is re-fetched under a lock
+     * inside a transaction, so concurrent appends cannot lose entries from
+     * the read-modify-write race. Refreshes this instance afterwards.
+     */
+    public function appendName($name) {
+        return $this->appendValueLocked('name', $name);
+    }
+
+    public function appendQQ($qq) {
+        return $this->appendValueLocked('qq', $qq);
+    }
+
+    protected function appendValueLocked(string $column, $value) {
+        DB::transaction(function () use ($column, $value) {
+            static::where($this->getKeyName(), $this->getKey())
+                ->lockForUpdate()
+                ->firstOrFail()
+                ->addValue($column, $value)
+                ->save();
+        });
+
+        $this->refresh();
+
         return $this;
     }
 }

@@ -12,8 +12,11 @@ use Carbon\Carbon;
 use Exception;
 use Http;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Database\QueryException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Vectorface\Whip\Whip;
 
@@ -156,39 +159,80 @@ class AuthController extends Controller {
 
     private function register($dispatcher, $data, $ip, $eduroam_user, $playerName, $request, $filter) {
         $dispatcher->dispatch('auth.registration.ready', [$data]);
-        $user = new User();
-        $user->email = $data['qq'] . '@qq.com';
-        $user->nickname = $data[option('register_with_player_name') ? 'player_name' : 'nickname'];
-        $user->score = option('user_initial_score');
-        $user->avatar = 0;
-        $password = app('cipher')->hash($data['password'], config('secure.salt'));
-        $user->password = $filter->apply('user_password', $password);
-        $user->ip = $ip;
-        $user->permission = User::NORMAL;
-        $user->register_at = Carbon::now();
-        $user->last_sign_at = Carbon::now()->subDay();
-        $user->eduroam = $eduroam_user;
-        $eduroam = Eduroam::firstOrCreate(
-            ['eduroam' => $eduroam_user],
-            ['name' => [], 'qq' => []]
-        );
-        $eduroam->addQQ($data['qq'])->save();
-        $user->save();
-        $dispatcher->dispatch('auth.registration.completed', [$user]);
-        event(new Events\UserRegistered($user));
-        if (option('register_with_player_name')) {
-            $dispatcher->dispatch('player.adding', [$playerName, $user]);
-            $player = new Player();
-            $player->uid = $user->uid;
-            $player->name = $playerName;
-            $player->tid_skin = 0;
-            $player->save();
-            $dispatcher->dispatch('player.added', [$player, $user]);
-            event(new Events\PlayerWasAdded($player));
+
+        try {
+            $result = DB::transaction(function () use ($dispatcher, $data, $ip, $eduroam_user, $playerName, $filter) {
+                // Re-check inside the transaction to shrink the race window;
+                // the unique index on users.eduroam is the real guard.
+                if (User::where('eduroam', $eduroam_user)->exists()) {
+                    return json(trans('Blessing\\Eduroam::eduroam.auth.user_repeated'), 1);
+                }
+
+                $user = new User();
+                $user->email = $data['qq'] . '@qq.com';
+                $user->nickname = $data[option('register_with_player_name') ? 'player_name' : 'nickname'];
+                $user->score = option('user_initial_score');
+                $user->avatar = 0;
+                $password = app('cipher')->hash($data['password'], config('secure.salt'));
+                $user->password = $filter->apply('user_password', $password);
+                $user->ip = $ip;
+                $user->permission = User::NORMAL;
+                $user->register_at = Carbon::now();
+                $user->last_sign_at = Carbon::now()->subDay();
+                $user->eduroam = $eduroam_user;
+                $user->save();
+
+                $eduroam = Eduroam::firstOrCreate(
+                    ['eduroam' => $eduroam_user],
+                    ['name' => [], 'qq' => []]
+                );
+                $eduroam->appendQQ($data['qq']);
+
+                $dispatcher->dispatch('auth.registration.completed', [$user]);
+                event(new Events\UserRegistered($user));
+
+                if (option('register_with_player_name')) {
+                    $dispatcher->dispatch('player.adding', [$playerName, $user]);
+                    $player = new Player();
+                    $player->uid = $user->uid;
+                    $player->name = $playerName;
+                    $player->tid_skin = 0;
+                    $player->save();
+                    $dispatcher->dispatch('player.added', [$player, $user]);
+                    event(new Events\PlayerWasAdded($player));
+                }
+
+                return $user;
+            });
+        } catch (QueryException $e) {
+            if ($this->isUniqueViolation($e)) {
+                return json(trans('Blessing\\Eduroam::eduroam.auth.user_repeated'), 1);
+            }
+            throw $e;
         }
-        $dispatcher->dispatch('auth.login.ready', [$user]);
-        auth()->login($user);
-        $dispatcher->dispatch('auth.login.succeeded', [$user]);
+
+        // A duplicate detected before the insert returns a JsonResponse from the closure.
+        if ($result instanceof JsonResponse) {
+            return $result;
+        }
+
+        $dispatcher->dispatch('auth.login.ready', [$result]);
+        auth()->login($result);
+        $dispatcher->dispatch('auth.login.succeeded', [$result]);
         return json(trans('auth.login.success'), 0, ['redirectTo' => $request->session()->pull('last_requested_path', url('/user'))]);
+    }
+
+    /**
+     * Detect a unique-constraint violation across MySQL/MariaDB/PostgreSQL/SQLite.
+     */
+    private function isUniqueViolation(QueryException $e): bool {
+        $state = method_exists($e, 'getSqlState') ? $e->getSqlState() : ($e->errorInfo[0] ?? '');
+        if (in_array($state, ['23000', '23505'], true)) {
+            return true;
+        }
+        $message = strtolower($e->getMessage());
+        return str_contains($message, 'duplicate entry')
+            || str_contains($message, 'duplicate key value')
+            || str_contains($message, 'unique constraint failed');
     }
 }
