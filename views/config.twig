@@ -6,4 +6,66 @@
       {{ config|raw }}
     </div>
   </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card card-primary">
+        <div class="card-header">
+          <h3 class="card-title">{{ trans('Blessing\\Eduroam::eduroam.config.query_title') }}</h3>
+        </div>
+        <div class="card-body">
+          <p class="text-muted">{{ trans('Blessing\\Eduroam::eduroam.config.query_desc') }}</p>
+          <form method="get" class="form-inline mb-3">
+            <div class="form-group mr-2 mb-2">
+              <label class="mr-2">{{ trans('Blessing\\Eduroam::eduroam.config.query_field') }}</label>
+              <select name="q_field" class="form-control">
+                <option value="qq"{% if query and query.field == 'qq' %} selected{% endif %}>{{ trans('Blessing\\Eduroam::eduroam.config.query_field_qq') }}</option>
+                <option value="eduroam"{% if query and query.field == 'eduroam' %} selected{% endif %}>{{ trans('Blessing\\Eduroam::eduroam.config.query_field_eduroam') }}</option>
+                <option value="name"{% if query and query.field == 'name' %} selected{% endif %}>{{ trans('Blessing\\Eduroam::eduroam.config.query_field_name') }}</option>
+              </select>
+            </div>
+            <div class="form-group mr-2 mb-2">
+              <label class="mr-2">{{ trans('Blessing\\Eduroam::eduroam.config.query_keyword') }}</label>
+              <input type="text" name="q_keyword" class="form-control" value="{{ query ? query.keyword : '' }}" placeholder="">
+            </div>
+            <button type="submit" class="btn btn-primary mb-2">{{ trans('Blessing\\Eduroam::eduroam.config.query_submit') }}</button>
+            <a href="{{ request.path }}" class="btn btn-default mb-2 ml-2">{{ trans('Blessing\\Eduroam::eduroam.config.query_clear') }}</a>
+          </form>
+
+          {% if results is not null %}
+            {% if results|length > 0 %}
+              <div class="alert alert-info">
+                {{ trans('Blessing\\Eduroam::eduroam.config.query_result_count', {count: results|length}) }}
+              </div>
+              <div class="table-responsive">
+                <table class="table table-bordered table-striped">
+                  <thead>
+                    <tr>
+                      <th>{{ trans('Blessing\\Eduroam::eduroam.config.result_eduroam') }}</th>
+                      <th>{{ trans('Blessing\\Eduroam::eduroam.config.result_qq') }}</th>
+                      <th>{{ trans('Blessing\\Eduroam::eduroam.config.result_name') }}</th>
+                      <th>{{ trans('Blessing\\Eduroam::eduroam.config.result_email') }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for row in results %}
+                      <tr>
+                        <td>{{ row.eduroam }}</td>
+                        <td>{{ row.qq|join(', ') }}</td>
+                        <td>{{ row.name|join(', ') }}</td>
+                        <td>{{ row.email }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <div class="alert alert-warning">
+                {{ trans('Blessing\\Eduroam::eduroam.config.query_no_result') }}
+              </div>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}

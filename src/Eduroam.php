@@ -76,4 +76,33 @@ class Eduroam extends Model
 
         return $this;
     }
+
+    /**
+     * Search eduroam records by a substring of one of: eduroam, qq, name.
+     * - "eduroam" uses a cross-driver LIKE query.
+     * - "qq" and "name" are JSON arrays; we filter in PHP with str_contains so
+     *   the query stays portable across MySQL/MariaDB/PostgreSQL/SQLite (pgsql
+     *   rejects implicit text->json casts, and JSON containment syntax differs
+     *   per driver).
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public static function search(string $field, string $keyword): \Illuminate\Support\Collection {
+        if ($field === 'eduroam') {
+            return static::where('eduroam', 'like', '%' . $keyword . '%')->get();
+        }
+
+        if (!in_array($field, ['qq', 'name'], true)) {
+            return collect();
+        }
+
+        return static::all()->filter(function ($record) use ($field, $keyword) {
+            foreach ((array) ($record->{$field} ?? []) as $value) {
+                if (str_contains((string) $value, $keyword)) {
+                    return true;
+                }
+            }
+            return false;
+        });
+    }
 }

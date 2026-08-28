@@ -22,6 +22,21 @@ config:
   backup_eduroam_suffix-hint: 储存时将使用主认证后缀
   backup_eduroam_api: 备用Eduroam API
   backup_eduroam_api-description: 留空不开启备用验证
+  query_title: 查询
+  query_desc: 通过 QQ、Eduroam 账号或玩家名模糊查询记录（支持片段匹配）
+  query_field: 查询字段
+  query_field_qq: QQ
+  query_field_eduroam: Eduroam账号
+  query_field_name: 玩家名
+  query_keyword: 查询值
+  query_submit: 查询
+  query_clear: 清空
+  query_result_count: 找到 :count 条记录
+  query_no_result: 未找到匹配的记录
+  result_eduroam: Eduroam账号
+  result_qq: QQ
+  result_name: 玩家名
+  result_email: 邮箱
 auth:
   qq_repeated: QQ号已被使用。
   user_repeated: 统一身份认证账号已被使用。

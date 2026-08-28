@@ -22,6 +22,21 @@ config:
   backup_eduroam_suffix-hint: The Master Suffix Will Be Used When Saving
   backup_eduroam_api: Backup Eduroam API
   backup_eduroam_api-description: Leave blank to disable backup verification
+  query_title: Query
+  query_desc: Search records by QQ, Eduroam account or player name (supports partial matching)
+  query_field: Search By
+  query_field_qq: QQ
+  query_field_eduroam: Eduroam Account
+  query_field_name: Player Name
+  query_keyword: Keyword
+  query_submit: Search
+  query_clear: Clear
+  query_result_count: :count record(s) found
+  query_no_result: No matching record found
+  result_eduroam: Eduroam Account
+  result_qq: QQ
+  result_name: Player Name
+  result_email: Email
 auth:
   qq_repeated: This QQ number is already in use.
   user_repeated: Eduroam Account Has Been Used.
