@@ -100,9 +100,12 @@ class Eduroam extends Model
             return collect();
         }
 
+        // Case-insensitive substring match across all drivers.
+        // str_contains() is case-sensitive, so we use mb_stripos()
+        // which is case-insensitive and multibyte-safe.
         return static::all()->filter(function ($record) use ($field, $keyword) {
             foreach ((array) ($record->{$field} ?? []) as $value) {
-                if (str_contains((string) $value, $keyword)) {
+                if (mb_stripos((string) $value, $keyword) !== false) {
                     return true;
                 }
             }
