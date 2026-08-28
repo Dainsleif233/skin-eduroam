@@ -89,7 +89,11 @@ class Eduroam extends Model
      */
     public static function search(string $field, string $keyword): \Illuminate\Support\Collection {
         if ($field === 'eduroam') {
-            return static::where('eduroam', 'like', '%' . $keyword . '%')->get();
+            // Case-insensitive substring match. LIKE is case-sensitive on
+            // PostgreSQL but not on MySQL/SQLite, so we lowercase both sides
+            // with the standard SQL lower(), which works across all four
+            // drivers. The placeholder is still bound, so no injection risk.
+            return static::whereRaw('lower(eduroam) like ?', ['%' . mb_strtolower($keyword) . '%'])->get();
         }
 
         if (!in_array($field, ['qq', 'name'], true)) {
