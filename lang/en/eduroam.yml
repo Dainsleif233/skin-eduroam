@@ -30,7 +30,6 @@ config:
   query_field_name: Player Name
   query_keyword: Keyword
   query_submit: Search
-  query_clear: Clear
   query_result_count: :count record(s) found
   query_no_result: No matching record found
   result_eduroam: Eduroam Account

@@ -30,7 +30,6 @@ config:
   query_field_name: 玩家名
   query_keyword: 查询值
   query_submit: 查询
-  query_clear: 清空
   query_result_count: 找到 :count 条记录
   query_no_result: 未找到匹配的记录
   result_eduroam: Eduroam账号

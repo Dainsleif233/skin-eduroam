@@ -28,7 +28,6 @@
               <input type="text" name="q_keyword" class="form-control" value="{{ query ? query.keyword : '' }}" placeholder="">
             </div>
             <button type="submit" class="btn btn-primary mb-2">{{ trans('Blessing\\Eduroam::eduroam.config.query_submit') }}</button>
-            <a href="{{ request.path }}" class="btn btn-default mb-2 ml-2">{{ trans('Blessing\\Eduroam::eduroam.config.query_clear') }}</a>
           </form>
 
           {% if results is not null %}
